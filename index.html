@@ -335,17 +335,36 @@
                 margin-top: 0.5rem;
             }
         }
+         /* Countdown styles */
+         .countdown {
+            position: absolute;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: white;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            z-index: 1001;
+        }
+
+        .loading-animation-container {
+            position: relative;
+        }
     </style>
 </head>
 <body>
         <!-- Loading Screen -->
         <div class="loading-screen" id="loading-screen">
-            <div class="loading-animation">
-                <div></div>
-                <div></div>
-                <div></div>
+            <div class="loading-animation-container">
+                <div class="loading-animation">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+                <div class="countdown" id="countdown">10</div>
             </div>
-            <div class="loading-text">Preparing Your Special Surprise...</div>
+            <div class="loading-text">JANGAN DITUNGGUIN!</div>
         </div>
     <div id="threejs-container"></div>
     
@@ -373,7 +392,7 @@
                 <span class="letter">!</span>
                 <div class="shine"></div>
             </div>
-            <div class="name">BiontyLova</div>
+            <div class="name">BONTILOPA</div>
             <div class="message">
                 Hope your birthday is filled with all the fun, joy, and magic that you bring to others. May all the dreams you've wished for come true soon.
             </div>
@@ -389,9 +408,9 @@
             <div class="glass-edge"></div>
             
             <div class="back-message">
-                <h2 style="margin-bottom: 20px; transform: translateZ(30px);">On Your Special Day</h2>
+                <h2 style="margin-bottom: 20px; transform: translateZ(30px);">On Your Special Day🎊</h2>
                 Wishing you the happiest of birthdays filled with joy, and laughter!
-                <div style="margin-top: 30px; font-weight: bold; transform: translateZ(30px);">Best wishes! 💖</div>
+                <div style="margin-top: 30px; font-weight: bold; transform: translateZ(30px);">Best wishes! ✨</div>
             </div>
             
             <button class="flip-btn" id="flip-back-btn">Flip Back</button>
@@ -404,15 +423,28 @@
     </div>
     
     <script>
-        // Loading screen hide logic
-        window.addEventListener('load', () => {
+        // Countdown logic
+        const countdownElement = document.getElementById('countdown');
+        let timeLeft = 10;
+        
+        const countdownInterval = setInterval(() => {
+            timeLeft--;
+            countdownElement.textContent = timeLeft;
+            
+            // Add scale animation on each count
+            countdownElement.style.transform = 'translate(-50%, -50%) scale(1.3)';
             setTimeout(() => {
+                countdownElement.style.transform = 'translate(-50%, -50%) scale(1)';
+            }, 300);
+            
+            if (timeLeft <= 0) {
+                clearInterval(countdownInterval);
                 document.getElementById('loading-screen').style.opacity = 0;
                 setTimeout(() => {
                     document.getElementById('loading-screen').style.display = 'none';
                 }, 1000);
-            }, 2000);
-        });
+            }
+        }, 1000);
 
         // Sound setup
         const sounds = {
