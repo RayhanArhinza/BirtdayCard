@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Happy Birthday BiontyLova!</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            overflow: hidden;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            perspective: 1000px;
+            perspective-origin: 50% 50%;
+        }
+        
+        #threejs-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+        
+        .card-container {
+            width: 90%;
+            max-width: 600px;
+            height: 80vh; /* Use viewport height instead of fixed pixels */
+            max-height: 500px; /* Add max-height for larger screens */
+            position: relative;
+            z-index: 2;
+            transform-style: preserve-3d;
+            transition: transform 0.8s ease;
+            cursor: grab;
+            margin: auto; /* Center horizontally */
+        }
+        
+        .card-container:active {
+            cursor: grabbing;
+        }
+        
+        .content {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
+            transform-style: preserve-3d;
+            backface-visibility: hidden;
+        }
+        
+        .content-front {
+            background-color: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .content-back {
+            background-color: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transform: rotateY(180deg);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        /* Glass effect elements */
+        .glass-shine {
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                135deg,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0.05) 40%,
+                rgba(255, 255, 255, 0.1) 47%,
+                rgba(255, 255, 255, 0.05) 54%,
+                rgba(255, 255, 255, 0) 100%
+            );
+            pointer-events: none;
+            transform: translateZ(5px);
+        }
+        
+        .glass-edge {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            border-radius: 20px;
+            box-shadow: 
+                inset 0 0 15px rgba(255, 255, 255, 0.2),
+                0 0 5px rgba(255, 255, 255, 0.1);
+            pointer-events: none;
+        }
+        
+        .name {
+            font-size: 3rem;
+            font-weight: bold;
+            background: linear-gradient(to right, #ff6b6b, #ffb347, #ffee58, #66bb6a, #42a5f5, #7e57c2);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+            transform: translateZ(40px);
+        }
+        
+        .birthday-text {
+            position: relative;
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 2rem 0;
+            height: 60px;
+            overflow: hidden;
+            transform: translateZ(30px);
+        }
+        
+        .letter {
+            display: inline-block;
+            opacity: 0;
+            transform: translateY(40px);
+            transition: transform 0.5s ease, opacity 0.5s ease;
+        }
+
+        .letter.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .message {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+            transform: translateZ(20px);
+        }
+        
+        .date {
+            font-size: 1rem;
+            color: #ccc;
+            transform: translateZ(15px);
+        }
+
+        .back-message {
+            font-size: 1.3rem;
+            padding: 20px;
+            transform: translateZ(25px);
+            line-height: 1.5;
+        }
+
+        @media (max-width: 768px) {
+            .card-container {
+                width: 95%; /* More width on mobile */
+                height: 70vh; /* Adjust height for better mobile view */
+            }
+            
+            .name {
+                font-size: 2.5rem;
+            }
+            
+            .birthday-text {
+                font-size: 2rem;
+                height: 50px;
+            }
+            
+            .message {
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .card-container {
+                width: 95%;
+                height: 70vh;
+            }
+            
+            .name {
+                font-size: 2rem;
+            }
+            
+            .birthday-text {
+                font-size: 1.5rem;
+                height: 40px;
+                margin: 1rem 0;
+            }
+            
+            .message {
+                font-size: 0.9rem;
+                margin-bottom: 1rem;
+            }
+            
+            .confetti-btn {
+                font-size: 2.5rem !important;
+            }
+        }
+
+        .shine {
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(
+                to right,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0.3) 50%,
+                rgba(255, 255, 255, 0) 100%
+            );
+            animation: shine 3s infinite;
+            transform: translateZ(10px);
+        }
+
+        @keyframes shine {
+            0% { left: -100%; }
+            100% { left: 200%; }
+        }
+
+        .confetti-btn {
+            font-size: 3rem;
+            cursor: pointer;
+            background: none;
+            border: none;
+            margin-top: 1rem;
+            transition: transform 0.3s ease;
+            position: relative;
+            animation: pulse 2s infinite;
+            transform: translateZ(50px);
+        }
+
+        .confetti-btn:hover {
+            transform: translateZ(50px) scale(1.2);
+        }
+
+        .confetti-btn:active {
+            transform: translateZ(50px) scale(0.9);
+        }
+        
+        @keyframes pulse {
+            0% { transform: translateZ(50px) scale(1); }
+            50% { transform: translateZ(50px) scale(1.1); }
+            100% { transform: translateZ(50px) scale(1); }
+        }
+        
+        .cake {
+            font-size: 2.5rem;
+            margin-top: 10px;
+            opacity: 0;
+            transform: scale(0) translateZ(35px);
+            transition: all 0.5s ease;
+        }
+        
+        .cake.visible {
+            opacity: 1;
+            transform: scale(1) translateZ(35px);
+        }
+        
+        .flip-instruction {
+            position: absolute;
+            bottom: 10px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            width: 100%;
+            text-align: center;
+            transform: translateZ(10px);
+        }
+        
+        .flip-btn {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            transform: translateZ(15px);
+            transition: all 0.3s ease;
+        }
+        
+        .flip-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        /* Make content fit better on mobile */
+        @media (max-height: 700px) {
+            .birthday-text {
+                margin: 0.5rem 0;
+            }
+            
+            .message {
+                margin-bottom: 1rem;
+            }
+            
+            .confetti-btn {
+                margin-top: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="threejs-container"></div>
+    
+    <div class="card-container" id="card-container">
+        <div class="content content-front">
+            <div class="glass-shine"></div>
+            <div class="glass-edge"></div>
+            
+            <div class="name">BiontyLova</div>
+            <div class="birthday-text">
+                <span class="letter">H</span>
+                <span class="letter">a</span>
+                <span class="letter">p</span>
+                <span class="letter">p</span>
+                <span class="letter">y</span>
+                <span class="letter">&nbsp;</span>
+                <span class="letter">B</span>
+                <span class="letter">i</span>
+                <span class="letter">r</span>
+                <span class="letter">t</span>
+                <span class="letter">h</span>
+                <span class="letter">d</span>
+                <span class="letter">a</span>
+                <span class="letter">y</span>
+                <span class="letter">!</span>
+                <div class="shine"></div>
+            </div>
+            <div class="message">
+                Wishing you a fantastic day filled with joy, laughter, and all the things that make you happy. May your year ahead be as amazing as you are!
+            </div>
+            <div class="date">May 8, 2025</div>
+            <div class="cake" id="cake">🎂</div>
+            <button class="confetti-btn" id="celebrate-btn">🎉</button>
+            
+            <div class="flip-instruction">Drag to rotate | Double tap to flip card</div>
+        </div>
+        
+        <div class="content content-back">
+            <div class="glass-shine"></div>
+            <div class="glass-edge"></div>
+            
+            <div class="back-message">
+                <h2 style="margin-bottom: 20px; transform: translateZ(30px);">On Your Special Day</h2>
+                May every moment of your birthday be filled with the wonder and magic that you bring to others. Here's to celebrating you and all the amazing things you'll accomplish in the coming year!
+                <div style="margin-top: 30px; font-weight: bold; transform: translateZ(30px);">With love and best wishes! 💖</div>
+            </div>
+            
+            <button class="flip-btn" id="flip-back-btn">Flip Back</button>
+        </div>
+    </div>
+    
+    <div class="zoom-controls">
+        <div class="zoom-btn" id="zoom-out">−</div>
+        <div class="zoom-btn" id="zoom-in">+</div>
+    </div>
+
+    <script>
+// Three.js setup - Optimized for performance
+const container = document.getElementById('threejs-container');
+const scene = new THREE.Scene();
+
+// Check if device is mobile
+const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
+
+// Reduce particles for better performance
+const particleCount = isMobile ? 500 : 1500;
+
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+camera.position.z = 5;
+
+// Use lower quality renderer for mobile
+const renderer = new THREE.WebGLRenderer({ 
+    antialias: !isMobile,
+    alpha: true,
+    powerPreference: 'low-power' 
+});
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setClearColor(0x000000, 0);
+container.appendChild(renderer.domElement);
+
+// Create particles with instanced buffer geometry for better performance
+const particlesGeometry = new THREE.BufferGeometry();
+
+const posArray = new Float32Array(particleCount * 3);
+const colorsArray = new Float32Array(particleCount * 3);
+
+for (let i = 0; i < particleCount * 3; i += 3) {
+    // Position
+    posArray[i] = (Math.random() - 0.5) * 10;
+    posArray[i + 1] = (Math.random() - 0.5) * 10;
+    posArray[i + 2] = (Math.random() - 0.5) * 10;
+    
+    // Colors - rainbow effect
+    const hue = (i / particleCount) * 360;
+    const color = new THREE.Color(`hsl(${hue}, 100%, 50%)`);
+    colorsArray[i] = color.r;
+    colorsArray[i + 1] = color.g;
+    colorsArray[i + 2] = color.b;
+}
+
+particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colorsArray, 3));
+
+const particlesMaterial = new THREE.PointsMaterial({
+    size: isMobile ? 0.08 : 0.05,
+    vertexColors: true,
+    transparent: true,
+    opacity: 0.8
+});
+
+const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+scene.add(particlesMesh);
+
+// Much slower animation for better performance
+const animationSpeed = isMobile ? 0.0003 : 0.0006;
+
+// Throttle the animation frames for better performance
+let lastFrame = 0;
+const frameRate = isMobile ? 24 : 60; // Lower framerate for mobile
+const frameInterval = 1000 / frameRate;
+
+const animate = (timestamp) => {
+    requestAnimationFrame(animate);
+    
+    // Skip frames for performance
+    if (timestamp - lastFrame < frameInterval) return;
+    lastFrame = timestamp;
+    
+    particlesMesh.rotation.x += animationSpeed;
+    particlesMesh.rotation.y += animationSpeed;
+    
+    renderer.render(scene, camera);
+};
+
+// Handle window resize
+const handleResize = () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+};
+
+window.addEventListener('resize', handleResize);
+
+// Start animation with requestAnimationFrame for better performance
+requestAnimationFrame(animate);
+
+// iPhone-style hello animation
+const letters = document.querySelectorAll('.letter');
+let index = 0;
+
+const animateText = () => {
+    // Reset all letters
+    letters.forEach(letter => {
+        letter.classList.remove('visible');
+    });
+    
+    // Animation sequence
+    const interval = setInterval(() => {
+        if (index < letters.length) {
+            letters[index].classList.add('visible');
+            index++;
+        } else {
+            clearInterval(interval);
+            setTimeout(() => {
+                index = 0;
+                // Keep visible for a while before restarting
+                setTimeout(animateText, 3000);
+            }, 500);
+        }
+    }, 100);
+};
+
+// Start animation when page loads
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(animateText, 500);
+});
+
+// Show cake animation
+const showCake = () => {
+    const cake = document.getElementById('cake');
+    cake.classList.add('visible');
+    setTimeout(() => {
+        cake.classList.remove('visible');
+    }, 5000);
+};
+
+// Enhanced Card 3D rotation handling with swipe gestures
+const cardContainer = document.getElementById('card-container');
+let isDragging = false;
+let isFlipped = false;
+let previousMouseX = 0;
+let previousMouseY = 0;
+let rotationX = 0;
+let rotationY = 0;
+let targetRotationX = 0;
+let targetRotationY = 0;
+let startTouchX = 0;
+let startTouchY = 0;
+let velocityX = 0;
+let velocityY = 0;
+let lastTime = 0;
+
+// Zoom functionality
+let cardScale = 1;
+const minScale = 0.6;
+const maxScale = 1.5;
+
+// Initial animation to show the 3D effect but less intense
+setTimeout(() => {
+    targetRotationY = 5;
+    setTimeout(() => {
+        targetRotationY = -5;
+        setTimeout(() => {
+            targetRotationY = 0;
+        }, 1000);
+    }, 1000);
+}, 1000);
+
+// Rotation sensitivity
+const rotationSensitivity = isMobile ? 0.3 : 0.4;
+const flipThreshold = 30; // Degrees threshold to flip card
+const returnSpeed = 0.05; // Speed to return to neutral position
+
+// Touch and mouse event handlers
+cardContainer.addEventListener('pointerdown', (e) => {
+    isDragging = true;
+    previousMouseX = e.clientX || e.touches[0].clientX;
+    previousMouseY = e.clientY || e.touches[0].clientY;
+    startTouchX = e.clientX || e.touches[0].clientX;
+    startTouchY = e.clientY || e.touches[0].clientY;
+    cardContainer.style.cursor = 'grabbing';
+    velocityX = 0;
+    velocityY = 0;
+    lastTime = Date.now();
+    e.preventDefault();
+});
+
+window.addEventListener('pointermove', (e) => {
+    if (!isDragging) return;
+    
+    const currentTime = Date.now();
+    const deltaTime = currentTime - lastTime;
+    lastTime = currentTime;
+    
+    const clientX = e.clientX || e.touches[0].clientX;
+    const clientY = e.clientY || e.touches[0].clientY;
+    
+    const deltaX = clientX - previousMouseX;
+    const deltaY = clientY - previousMouseY;
+    
+    // Calculate velocity for momentum
+    if (deltaTime > 0) {
+        velocityX = deltaX / deltaTime * 16;
+        velocityY = deltaY / deltaTime * 16;
+    }
+    
+    // Apply rotation based on movement
+    targetRotationY += deltaX * rotationSensitivity;
+    targetRotationX -= deltaY * rotationSensitivity;
+    
+    // Limit rotation to prevent awkward angles
+    targetRotationX = Math.max(-45, Math.min(45, targetRotationX));
+    
+    previousMouseX = clientX;
+    previousMouseY = clientY;
+    
+    e.preventDefault();
+});
+
+window.addEventListener('pointerup', (e) => {
+    if (!isDragging) return;
+    isDragging = false;
+    cardContainer.style.cursor = 'grab';
+    
+    // Check if swipe was strong enough to flip card
+    const endTouchX = e.clientX || e.changedTouches[0].clientX;
+    const endTouchY = e.clientY || e.changedTouches[0].clientY;
+    const deltaX = endTouchX - startTouchX;
+    const deltaY = endTouchY - startTouchY;
+    
+    // Apply momentum
+    if (Math.abs(velocityX) > 2 || Math.abs(velocityY) > 2) {
+        targetRotationY += velocityX * 20;
+        targetRotationX -= velocityY * 20;
+    }
+    
+    // Check if we should flip the card based on rotation
+    if (!isFlipped && targetRotationY > flipThreshold) {
+        // Swipe right - flip to back
+        flipCard();
+    } else if (!isFlipped && targetRotationY < -flipThreshold) {
+        // Swipe left - flip to back
+        flipCard();
+    } else if (!isFlipped && targetRotationX > flipThreshold) {
+        // Swipe down - flip to back
+        flipCard();
+    } else if (!isFlipped && targetRotationX < -flipThreshold) {
+        // Swipe up - flip to back
+        flipCard();
+    } else if (isFlipped && (Math.abs(targetRotationY) > flipThreshold || Math.abs(targetRotationX) > flipThreshold)) {
+        // If card is flipped and rotated enough, flip it back
+        flipCard();
+    } else {
+        // Return to neutral position
+        smoothReturnToNeutral();
+    }
+    
+    e.preventDefault();
+});
+
+// Double tap to flip
+let lastTap = 0;
+cardContainer.addEventListener('click', (e) => {
+    const currentTime = new Date().getTime();
+    const tapLength = currentTime - lastTap;
+    
+    if (tapLength < 300 && tapLength > 0) {
+        flipCard();
+        e.preventDefault();
+    }
+    
+    lastTap = currentTime;
+});
+
+// Flip button handlers
+document.getElementById('flip-back-btn').addEventListener('click', flipCard);
+
+function flipCard() {
+    isFlipped = !isFlipped;
+    targetRotationX = 0;
+    targetRotationY = 0;
+    smoothReturnToNeutral();
+}
+
+// Smoother return to neutral position with momentum
+function smoothReturnToNeutral() {
+    // Apply easing to return to neutral position
+    const easeOut = () => {
+        targetRotationX *= (1 - returnSpeed);
+        targetRotationY *= (1 - returnSpeed);
+        
+        // Stop when close enough to zero
+        if (Math.abs(targetRotationX) < 0.5 && Math.abs(targetRotationY) < 0.5) {
+            targetRotationX = 0;
+            targetRotationY = 0;
+            return;
+        }
+        
+        requestAnimationFrame(easeOut);
+    };
+    
+    requestAnimationFrame(easeOut);
+}
+
+// Zoom functionality
+document.getElementById('zoom-in').addEventListener('click', () => {
+    if (cardScale < maxScale) {
+        cardScale += 0.1;
+        updateCardTransform();
+    }
+});
+
+document.getElementById('zoom-out').addEventListener('click', () => {
+    if (cardScale > minScale) {
+        cardScale -= 0.1;
+        updateCardTransform();
+    }
+});
+
+// Pinch zoom functionality
+let initialDistance = 0;
+let initialScale = 1;
+
+document.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 2) {
+        initialDistance = Math.hypot(
+            e.touches[0].pageX - e.touches[1].pageX,
+            e.touches[0].pageY - e.touches[1].pageY
+        );
+        initialScale = cardScale;
+        e.preventDefault();
+    }
+});
+
+document.addEventListener('touchmove', (e) => {
+    if (e.touches.length === 2) {
+        const currentDistance = Math.hypot(
+            e.touches[0].pageX - e.touches[1].pageX,
+            e.touches[0].pageY - e.touches[1].pageY
+        );
+        
+        const ratio = currentDistance / initialDistance;
+        cardScale = Math.min(Math.max(initialScale * ratio, minScale), maxScale);
+        
+        updateCardTransform();
+        e.preventDefault();
+    }
+});
+
+// Update card transform with smoother animation using requestAnimationFrame
+let animationFrameId;
+function updateCardRotation() {
+    // Apply easing to rotation changes
+    rotationX += (targetRotationX - rotationX) * 0.1;
+    rotationY += (targetRotationY - rotationY) * 0.1;
+    
+    updateCardTransform();
+    
+    animationFrameId = requestAnimationFrame(updateCardRotation);
+}
+
+// Combine rotation and scaling in one transform update
+function updateCardTransform() {
+    let transform = `scale(${cardScale}) rotateX(${rotationX}deg) rotateY(${rotationY}deg)`;
+    
+    // Add flip transform if card is flipped
+    if (isFlipped) {
+        transform += ' rotateY(180deg)';
+    }
+    
+    cardContainer.style.transform = transform;
+    
+    // Add perspective effect based on rotation
+    const intensity = isFlipped ? -1 : 1;
+    const shadowX = rotationY * intensity * 0.5;
+    const shadowY = -rotationX * intensity * 0.5;
+    const shadowBlur = 20 + Math.abs(rotationY) * 0.5 + Math.abs(rotationX) * 0.5;
+    
+    if (isFlipped) {
+        document.querySelector('.content-back').style.boxShadow = `${shadowX}px ${shadowY}px ${shadowBlur}px rgba(0, 0, 0, 0.3)`;
+    } else {
+        document.querySelector('.content-front').style.boxShadow = `${shadowX}px ${shadowY}px ${shadowBlur}px rgba(0, 0, 0, 0.3)`;
+    }
+}
+
+// Start rotation animation with requestAnimationFrame
+updateCardRotation();
+
+// OPTIMIZED CONFETTI BUTTON - for better performance
+document.getElementById('celebrate-btn').addEventListener('click', () => {
+    // Show the cake
+    showCake();
+    
+    // Create confetti container
+    let confettiContainer = document.getElementById('confetti-container');
+    if (!confettiContainer) {
+        confettiContainer = document.createElement('div');
+        confettiContainer.id = 'confetti-container';
+        confettiContainer.style.position = 'fixed';
+        confettiContainer.style.top = '0';
+        confettiContainer.style.left = '0';
+        confettiContainer.style.width = '100%';
+        confettiContainer.style.height = '100%';
+        confettiContainer.style.pointerEvents = 'none';
+        confettiContainer.style.zIndex = '999';
+        document.body.appendChild(confettiContainer);
+    }
+    
+    // Fewer particles, especially on mobile
+    const colors = [
+        '#ff6b6b', '#ffb347', '#ffee58', '#66bb6a', 
+        '#42a5f5', '#7e57c2', '#ec407a', '#26c6da'
+    ];
+    
+    const shapes = ['circle', 'square'];
+    
+    // Reduce particles for better performance
+    const particleCount = isMobile ? 80 : 150;
+    
+    // Get button position
+    const btnRect = document.getElementById('celebrate-btn').getBoundingClientRect();
+    const startX = btnRect.left + btnRect.width/2;
+    const startY = btnRect.top + btnRect.height/2;
+    
+    // Create fragment for better performance
+    const fragment = document.createDocumentFragment();
+    
+    // Create all particles
+    for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.style.position = 'absolute';
+        
+        // Smaller particles
+        const size = isMobile ? (2 + Math.random() * 5) : (3 + Math.random() * 7);
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+        
+        // Simpler shapes for better performance
+        const shape = shapes[Math.floor(Math.random() * shapes.length)];
+        if (shape === 'circle') {
+            particle.style.borderRadius = '50%';
+        }
+        
+        // Random color
+        particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        
+        // Set initial position
+        particle.style.left = `${startX}px`;
+        particle.style.top = `${startY}px`;
+        
+        // Store animation properties
+        const angle = Math.random() * Math.PI * 2;
+        const velocity = isMobile ? (2 + Math.random() * 5) : (3 + Math.random() * 7);
+        particle.xVelocity = Math.cos(angle) * velocity;
+        particle.yVelocity = Math.sin(angle) * velocity - 4;
+        particle.gravity = 0.1 + (Math.random() * 0.05);
+        particle.rotationSpeed = -3 + Math.random() * 6;
+        particle.rotationAngle = 0;
+        particle.opacity = 1;
+        particle.posX = startX;
+        particle.posY = startY;
+        
+        fragment.appendChild(particle);
+    }
+    
+    confettiContainer.appendChild(fragment);
+    
+    // One animation frame for all particles with throttling
+    let animationActive = true;
+    let lastConfettiFrame = 0;
+    const confettiFrameRate = isMobile ? 15 : 30; // frames per second
+    const confettiInterval = 1000 / confettiFrameRate;
+    
+    function animateAllParticles(timestamp) {
+        if (!animationActive) return;
+        
+        // Throttle for better performance
+        if (timestamp - lastConfettiFrame < confettiInterval) {
+            requestAnimationFrame(animateAllParticles);
+            return;
+        }
+        
+        lastConfettiFrame = timestamp;
+        
+        const particles = confettiContainer.children;
+        let aliveCount = 0;
+        
+        for (let i = 0; i < particles.length; i++) {
+            const particle = particles[i];
+            
+            if (!particle.hasOwnProperty('opacity')) continue;
+            
+            particle.posX += particle.xVelocity;
+            particle.posY += particle.yVelocity;
+            particle.yVelocity += particle.gravity;
+            particle.opacity -= 0.015; // Faster fade out
+            particle.rotationAngle += particle.rotationSpeed;
+            
+            if (particle.opacity <= 0 || particle.posY > window.innerHeight + 20) {
+                particle.remove();
+                continue;
+            }
+            
+            particle.style.left = `${particle.posX}px`;
+            particle.style.top = `${particle.posY}px`;
+            particle.style.transform = `rotate(${particle.rotationAngle}deg)`;
+            particle.style.opacity = particle.opacity;
+            
+            aliveCount++;
+        }
+        
+        if (aliveCount === 0) {
+            animationActive = false;
+            // Clear the container when animation is done
+            while (confettiContainer.firstChild) {
+                confettiContainer.removeChild(confettiContainer.firstChild);
+            }
+        } else {
+            requestAnimationFrame(animateAllParticles);
+        }
+    }
+    
+    requestAnimationFrame(animateAllParticles);
+});
+    </script>
+</body>
+</html>
