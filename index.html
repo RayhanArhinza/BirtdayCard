@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Happy Birthday BiontyLova!</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -301,6 +303,23 @@
         .flip-btn:hover {
             background: rgba(255, 255, 255, 0.3);
         }
+                /* Reset & base */
+                * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { overflow: hidden; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; perspective: 1000px; perspective-origin: 50% 50%; }
+        /* Loading Screen */
+        .loading-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #1a1a2e; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 1000; transition: opacity 1s ease; }
+        .loading-animation { width: 100px; height: 100px; position: relative; margin-bottom: 20px; }
+        .loading-animation div { position: absolute; width: 100%; height: 100%; border: 5px solid transparent; border-top-color: #ff6b6b; border-radius: 50%; animation: spin 1s linear infinite; }
+        .loading-animation div:nth-child(2) { border-top-color: #ffb347; animation-delay: -0.3s; }
+        .loading-animation div:nth-child(3) { border-top-color: #42a5f5; animation-delay: -0.6s; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .loading-text { color: white; font-size: 1.2rem; text-align: center; }
+        /* Three.js */
+        #threejs-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+        /* Sound Control */
+        .sound-control { position: absolute; top: 20px; right: 20px; font-size: 1.5rem; background: rgba(255,255,255,0.2); border: none; width: 40px; height: 40px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; z-index: 10; transition: all 0.3s ease; }
+        .sound-control:hover { background: rgba(255,255,255,0.3); }
+        /* ... rest of your existing CSS ... */
         
         /* Make content fit better on mobile */
         @media (max-height: 700px) {
@@ -319,6 +338,15 @@
     </style>
 </head>
 <body>
+        <!-- Loading Screen -->
+        <div class="loading-screen" id="loading-screen">
+            <div class="loading-animation">
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+            <div class="loading-text">Preparing Your Special Surprise...</div>
+        </div>
     <div id="threejs-container"></div>
     
     <div class="card-container" id="card-container">
@@ -326,7 +354,7 @@
             <div class="glass-shine"></div>
             <div class="glass-edge"></div>
             
-            <div class="name">BiontyLova</div>
+            
             <div class="birthday-text">
                 <span class="letter">H</span>
                 <span class="letter">a</span>
@@ -345,10 +373,11 @@
                 <span class="letter">!</span>
                 <div class="shine"></div>
             </div>
+            <div class="name">BiontyLova</div>
             <div class="message">
-                Wishing you a fantastic day filled with joy, laughter, and all the things that make you happy. May your year ahead be as amazing as you are!
+                Hope your birthday is filled with all the fun, joy, and magic that you bring to others. May all the dreams you've wished for come true soon.
             </div>
-            <div class="date">May 8, 2025</div>
+            <div class="date">May 11, 2025</div>
             <div class="cake" id="cake">🎂</div>
             <button class="confetti-btn" id="celebrate-btn">🎉</button>
             
@@ -361,8 +390,8 @@
             
             <div class="back-message">
                 <h2 style="margin-bottom: 20px; transform: translateZ(30px);">On Your Special Day</h2>
-                May every moment of your birthday be filled with the wonder and magic that you bring to others. Here's to celebrating you and all the amazing things you'll accomplish in the coming year!
-                <div style="margin-top: 30px; font-weight: bold; transform: translateZ(30px);">With love and best wishes! 💖</div>
+                Wishing you the happiest of birthdays filled with joy, and laughter!
+                <div style="margin-top: 30px; font-weight: bold; transform: translateZ(30px);">Best wishes! 💖</div>
             </div>
             
             <button class="flip-btn" id="flip-back-btn">Flip Back</button>
@@ -373,7 +402,48 @@
         <div class="zoom-btn" id="zoom-out">−</div>
         <div class="zoom-btn" id="zoom-in">+</div>
     </div>
+    
+    <script>
+        // Loading screen hide logic
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('loading-screen').style.opacity = 0;
+                setTimeout(() => {
+                    document.getElementById('loading-screen').style.display = 'none';
+                }, 1000);
+            }, 2000);
+        });
 
+        // Sound setup
+        const sounds = {
+            bgMusic: new Howl({ src: ['path/to/bg-music.mp3'], loop: true, volume: 0.5 }),
+            pop: new Howl({ src: ['path/to/pop.mp3'], volume: 0.8 })
+        };
+        let soundOn = false;
+        const soundControl = document.getElementById('sound-control');
+        soundControl.addEventListener('click', () => {
+            if(soundOn) { sounds.bgMusic.stop(); soundControl.textContent = '🔇'; }
+            else { sounds.bgMusic.play(); soundControl.textContent = '🔊'; }
+            soundOn = !soundOn;
+        });
+
+        // Auto-start music on first interaction
+        document.body.addEventListener('click', function initAudio() {
+            if(!soundOn) { sounds.bgMusic.play(); soundControl.textContent = '🔊'; soundOn = true; }
+            document.body.removeEventListener('click', initAudio);
+        }, { once: true });
+
+        // Initial 3D tilt animation
+        setTimeout(() => {
+            const card = document.getElementById('card-container');
+            card.style.transform = 'rotateY(5deg) rotateX(0deg)';
+            setTimeout(() => { card.style.transform = 'rotateY(-5deg) rotateX(0deg)';
+                setTimeout(() => { card.style.transform = 'rotateY(0deg) rotateX(0deg)'; }, 1000);
+            }, 1000);
+        }, 1000);
+
+        // ... rest of your existing JS (rotation, confetti, text animation) unchanged ...
+    </script>
     <script>
 // Three.js setup - Optimized for performance
 const container = document.getElementById('threejs-container');
@@ -504,257 +574,103 @@ const showCake = () => {
     }, 5000);
 };
 
-// Enhanced Card 3D rotation handling with swipe gestures
 const cardContainer = document.getElementById('card-container');
-let isDragging = false;
-let isFlipped = false;
-let previousMouseX = 0;
-let previousMouseY = 0;
-let rotationX = 0;
-let rotationY = 0;
-let targetRotationX = 0;
-let targetRotationY = 0;
-let startTouchX = 0;
-let startTouchY = 0;
-let velocityX = 0;
-let velocityY = 0;
-let lastTime = 0;
+        let isDragging = false;
+        let startX, startY;
+        let rotateX = 0, rotateY = 0;
 
-// Zoom functionality
-let cardScale = 1;
-const minScale = 0.6;
-const maxScale = 1.5;
+        cardContainer.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            startX = e.clientX;
+            startY = e.clientY;
+            cardContainer.style.cursor = 'grabbing';
+        });
 
-// Initial animation to show the 3D effect but less intense
-setTimeout(() => {
-    targetRotationY = 5;
-    setTimeout(() => {
-        targetRotationY = -5;
-        setTimeout(() => {
-            targetRotationY = 0;
-        }, 1000);
-    }, 1000);
-}, 1000);
+        document.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            
+            const x = e.clientX;
+            const y = e.clientY;
+            
+            const deltaX = x - startX;
+            const deltaY = y - startY;
+            
+            rotateY += deltaX * 0.2;
+            rotateX -= deltaY * 0.2;
+            
+            cardContainer.style.transform = `rotateY(${rotateY}deg) rotateX(${rotateX}deg)`;
+            
+            startX = x;
+            startY = y;
+        });
 
-// Rotation sensitivity
-const rotationSensitivity = isMobile ? 0.3 : 0.4;
-const flipThreshold = 30; // Degrees threshold to flip card
-const returnSpeed = 0.05; // Speed to return to neutral position
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+            cardContainer.style.cursor = 'grab';
+        });
 
-// Touch and mouse event handlers
-cardContainer.addEventListener('pointerdown', (e) => {
-    isDragging = true;
-    previousMouseX = e.clientX || e.touches[0].clientX;
-    previousMouseY = e.clientY || e.touches[0].clientY;
-    startTouchX = e.clientX || e.touches[0].clientX;
-    startTouchY = e.clientY || e.touches[0].clientY;
-    cardContainer.style.cursor = 'grabbing';
-    velocityX = 0;
-    velocityY = 0;
-    lastTime = Date.now();
-    e.preventDefault();
-});
+        // Touch events for mobile
+        cardContainer.addEventListener('touchstart', (e) => {
+            isDragging = true;
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+            e.preventDefault();
+        });
 
-window.addEventListener('pointermove', (e) => {
-    if (!isDragging) return;
-    
-    const currentTime = Date.now();
-    const deltaTime = currentTime - lastTime;
-    lastTime = currentTime;
-    
-    const clientX = e.clientX || e.touches[0].clientX;
-    const clientY = e.clientY || e.touches[0].clientY;
-    
-    const deltaX = clientX - previousMouseX;
-    const deltaY = clientY - previousMouseY;
-    
-    // Calculate velocity for momentum
-    if (deltaTime > 0) {
-        velocityX = deltaX / deltaTime * 16;
-        velocityY = deltaY / deltaTime * 16;
-    }
-    
-    // Apply rotation based on movement
-    targetRotationY += deltaX * rotationSensitivity;
-    targetRotationX -= deltaY * rotationSensitivity;
-    
-    // Limit rotation to prevent awkward angles
-    targetRotationX = Math.max(-45, Math.min(45, targetRotationX));
-    
-    previousMouseX = clientX;
-    previousMouseY = clientY;
-    
-    e.preventDefault();
-});
+        document.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            
+            const x = e.touches[0].clientX;
+            const y = e.touches[0].clientY;
+            
+            const deltaX = x - startX;
+            const deltaY = y - startY;
+            
+            rotateY += deltaX * 0.2;
+            rotateX -= deltaY * 0.2;
+            
+            cardContainer.style.transform = `rotateY(${rotateY}deg) rotateX(${rotateX}deg)`;
+            
+            startX = x;
+            startY = y;
+            e.preventDefault();
+        });
 
-window.addEventListener('pointerup', (e) => {
-    if (!isDragging) return;
-    isDragging = false;
-    cardContainer.style.cursor = 'grab';
-    
-    // Check if swipe was strong enough to flip card
-    const endTouchX = e.clientX || e.changedTouches[0].clientX;
-    const endTouchY = e.clientY || e.changedTouches[0].clientY;
-    const deltaX = endTouchX - startTouchX;
-    const deltaY = endTouchY - startTouchY;
-    
-    // Apply momentum
-    if (Math.abs(velocityX) > 2 || Math.abs(velocityY) > 2) {
-        targetRotationY += velocityX * 20;
-        targetRotationX -= velocityY * 20;
-    }
-    
-    // Check if we should flip the card based on rotation
-    if (!isFlipped && targetRotationY > flipThreshold) {
-        // Swipe right - flip to back
-        flipCard();
-    } else if (!isFlipped && targetRotationY < -flipThreshold) {
-        // Swipe left - flip to back
-        flipCard();
-    } else if (!isFlipped && targetRotationX > flipThreshold) {
-        // Swipe down - flip to back
-        flipCard();
-    } else if (!isFlipped && targetRotationX < -flipThreshold) {
-        // Swipe up - flip to back
-        flipCard();
-    } else if (isFlipped && (Math.abs(targetRotationY) > flipThreshold || Math.abs(targetRotationX) > flipThreshold)) {
-        // If card is flipped and rotated enough, flip it back
-        flipCard();
-    } else {
-        // Return to neutral position
-        smoothReturnToNeutral();
-    }
-    
-    e.preventDefault();
-});
+        document.addEventListener('touchend', () => {
+            isDragging = false;
+        });
 
-// Double tap to flip
-let lastTap = 0;
-cardContainer.addEventListener('click', (e) => {
-    const currentTime = new Date().getTime();
-    const tapLength = currentTime - lastTap;
-    
-    if (tapLength < 300 && tapLength > 0) {
-        flipCard();
-        e.preventDefault();
-    }
-    
-    lastTap = currentTime;
-});
-
-// Flip button handlers
-document.getElementById('flip-back-btn').addEventListener('click', flipCard);
-
-function flipCard() {
-    isFlipped = !isFlipped;
-    targetRotationX = 0;
-    targetRotationY = 0;
-    smoothReturnToNeutral();
-}
-
-// Smoother return to neutral position with momentum
-function smoothReturnToNeutral() {
-    // Apply easing to return to neutral position
-    const easeOut = () => {
-        targetRotationX *= (1 - returnSpeed);
-        targetRotationY *= (1 - returnSpeed);
+        // Flip card functionality
+        let isFlipped = false;
+        const flipBackBtn = document.getElementById('flip-back-btn');
         
-        // Stop when close enough to zero
-        if (Math.abs(targetRotationX) < 0.5 && Math.abs(targetRotationY) < 0.5) {
-            targetRotationX = 0;
-            targetRotationY = 0;
-            return;
+        function flipCard() {
+            if (soundOn) sounds.pop.play();
+            
+            isFlipped = !isFlipped;
+            if (isFlipped) {
+                cardContainer.style.transform = 'rotateY(180deg)';
+            } else {
+                cardContainer.style.transform = 'rotateY(0deg)';
+            }
         }
         
-        requestAnimationFrame(easeOut);
-    };
-    
-    requestAnimationFrame(easeOut);
-}
-
-// Zoom functionality
-document.getElementById('zoom-in').addEventListener('click', () => {
-    if (cardScale < maxScale) {
-        cardScale += 0.1;
-        updateCardTransform();
-    }
-});
-
-document.getElementById('zoom-out').addEventListener('click', () => {
-    if (cardScale > minScale) {
-        cardScale -= 0.1;
-        updateCardTransform();
-    }
-});
-
-// Pinch zoom functionality
-let initialDistance = 0;
-let initialScale = 1;
-
-document.addEventListener('touchstart', (e) => {
-    if (e.touches.length === 2) {
-        initialDistance = Math.hypot(
-            e.touches[0].pageX - e.touches[1].pageX,
-            e.touches[0].pageY - e.touches[1].pageY
-        );
-        initialScale = cardScale;
-        e.preventDefault();
-    }
-});
-
-document.addEventListener('touchmove', (e) => {
-    if (e.touches.length === 2) {
-        const currentDistance = Math.hypot(
-            e.touches[0].pageX - e.touches[1].pageX,
-            e.touches[0].pageY - e.touches[1].pageY
-        );
+        // Double click/tap to flip
+        cardContainer.addEventListener('dblclick', flipCard);
         
-        const ratio = currentDistance / initialDistance;
-        cardScale = Math.min(Math.max(initialScale * ratio, minScale), maxScale);
+        // Mobile double tap
+        let lastTap = 0;
+        cardContainer.addEventListener('touchend', (e) => {
+            const currentTime = new Date().getTime();
+            const tapLength = currentTime - lastTap;
+            if (tapLength < 300 && tapLength > 0) {
+                flipCard();
+                e.preventDefault();
+            }
+            lastTap = currentTime;
+        });
         
-        updateCardTransform();
-        e.preventDefault();
-    }
-});
-
-// Update card transform with smoother animation using requestAnimationFrame
-let animationFrameId;
-function updateCardRotation() {
-    // Apply easing to rotation changes
-    rotationX += (targetRotationX - rotationX) * 0.1;
-    rotationY += (targetRotationY - rotationY) * 0.1;
-    
-    updateCardTransform();
-    
-    animationFrameId = requestAnimationFrame(updateCardRotation);
-}
-
-// Combine rotation and scaling in one transform update
-function updateCardTransform() {
-    let transform = `scale(${cardScale}) rotateX(${rotationX}deg) rotateY(${rotationY}deg)`;
-    
-    // Add flip transform if card is flipped
-    if (isFlipped) {
-        transform += ' rotateY(180deg)';
-    }
-    
-    cardContainer.style.transform = transform;
-    
-    // Add perspective effect based on rotation
-    const intensity = isFlipped ? -1 : 1;
-    const shadowX = rotationY * intensity * 0.5;
-    const shadowY = -rotationX * intensity * 0.5;
-    const shadowBlur = 20 + Math.abs(rotationY) * 0.5 + Math.abs(rotationX) * 0.5;
-    
-    if (isFlipped) {
-        document.querySelector('.content-back').style.boxShadow = `${shadowX}px ${shadowY}px ${shadowBlur}px rgba(0, 0, 0, 0.3)`;
-    } else {
-        document.querySelector('.content-front').style.boxShadow = `${shadowX}px ${shadowY}px ${shadowBlur}px rgba(0, 0, 0, 0.3)`;
-    }
-}
-
-// Start rotation animation with requestAnimationFrame
-updateCardRotation();
+        flipBackBtn.addEventListener('click', flipCard);
 
 // OPTIMIZED CONFETTI BUTTON - for better performance
 document.getElementById('celebrate-btn').addEventListener('click', () => {
